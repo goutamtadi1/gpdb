@@ -6,7 +6,7 @@ groups:
   - compile_gpdb_binary_swap_centos6
   - compile_gpdb_centos7
   - compile_gpdb_sles11
-  - compile_gpdb_ubuntu16
+  - compile_and_icw_gpdb_ubuntu16
   - compile_gpdb_windows_cl
   - compile_gpdb_aix7_remote
   - icw_planner_centos6
@@ -627,7 +627,7 @@ jobs:
       params:
         file: gpdb_artifacts/greenplum-loaders-*-rhel7-x86_64.zip
 
-- name: compile_gpdb_ubuntu16
+- name: compile_and_icw_gpdb_ubuntu16
   plan:
   - aggregate:
     - get: reduced-frequency-trigger
@@ -639,6 +639,12 @@ jobs:
     image: ubuntu-gpdb-dev-16
     file: gpdb_src/concourse/tasks/compile_gpdb_open_source_ubuntu.yml
     params:
+      CONFIGURE_FLAGS: {{configure_flags}}
+  - task: ic_gpdb
+    file: gpdb_src/concourse/tasks/ic_gpdb_ubuntu.yml
+    image: ubuntu-gpdb-dev-16
+    params:
+      MAKE_TEST_COMMAND: PGOPTIONS='-c optimizer=off' installcheck-world
       CONFIGURE_FLAGS: {{configure_flags}}
 
 - name: compile_gpdb_sles11
@@ -1928,7 +1934,7 @@ jobs:
     - compile_gpdb_open_source_centos6
     - compile_gpdb_centos7
     - compile_gpdb_sles11
-    - compile_gpdb_ubuntu16
+    - compile_and_icw_gpdb_ubuntu16
     - compile_gpdb_windows_cl
     - compile_gpdb_aix7_remote
     - icw_planner_centos6
