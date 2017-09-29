@@ -9,7 +9,7 @@ GREENPLUM_INSTALL_DIR=/usr/local/gpdb
 
 function build_gpdb() {
   pushd gpdb_src
-    CC=$(which gcc) CXX=$(which g++) ./configure --enable-mapreduce --with-perl --with-libxml \
+    CC=$(which gcc) CXX=$(which g++) ./configure --enable-mapreduce --with-gssapi --with-perl --with-libxml \
 	--disable-orca --with-python --prefix=${GREENPLUM_INSTALL_DIR}
     make -j4
     make install
