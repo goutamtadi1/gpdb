@@ -34,13 +34,6 @@ make clean
 cp ${MASTER_DATA_DIRECTORY}/pg_hba.conf ./pg_hba.conf.orig
 cp ${MASTER_DATA_DIRECTORY}/postgresql.conf ./postgresql.conf.orig
 
-###
-# Check that krb5kdc is in $PATH.
-if ! command -v krb5kdc > /dev/null; then
-    echo "Kerberos utility 'krb5kdc' not found. Is /usr/sbin or /usr/local/sbin in your PATH?"
-    exit 1
-fi
-
 # Set up KDC database, with a service principal for the server, and a user
 # principal for "krbtestuser"
 echo "Setting up test KDC..."
