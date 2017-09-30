@@ -3,7 +3,10 @@ image_resource:
   type: docker-image
 inputs:
   - name: gpdb_src
+outputs:
+  - name: compiled_bits_transfer_dir
 run:
   path: gpdb_src/concourse/scripts/compile_gpdb_open_source_ubuntu.bash
 params:
   CONFIGURE_FLAGS: ""
+  TRANSFER_DIR: compiled_bits_transfer_dir
