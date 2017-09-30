@@ -2,10 +2,8 @@
 set -exo pipefail
 
 GREENPLUM_INSTALL_DIR=/usr/local/gpdb
-
-# This is a canonical way to build GPDB. The intent is to validate that GPDB compiles
-# with a fairly basic build. It is not meant to be exhaustive or include all features
-# and components available in GPDB.
+TRANSFER_DIR_ABSOLUTE_PATH="$(pwd)/${TRANSFER_DIR}"
+COMPILED_BITS_FILENAME=${COMPILED_BITS_FILENAME:="compiled_bits_gpdb.tar.gz"}
 
 function build_gpdb() {
   pushd gpdb_src
@@ -20,9 +18,20 @@ function unittest_check_gpdb() {
   make -C gpdb_src/src/backend -s unittest-check
 }
 
+function export_gpdb() {
+  TARBALL="$TRANSFER_DIR_ABSOLUTE_PATH"/$COMPILED_BITS_FILENAME
+  pushd $GREENPLUM_INSTALL_DIR
+    source greenplum_path.sh
+    python -m compileall -x test .
+    chmod -R 755 .
+    tar -czf "${TARBALL}" ./*
+  popd
+}
+
 function _main() {
   build_gpdb
   unittest_check_gpdb
+  export_gpdb
 }
 
 _main "$@"
