@@ -6,8 +6,6 @@ TRANSFER_DIR_ABSOLUTE_PATH="$(pwd)/${TRANSFER_DIR}"
 COMPILED_BITS_FILENAME=${COMPILED_BITS_FILENAME:="compiled_bits_gpdb.tar.gz"}
 
 function build_gpdb() {
-  GREENPLUM_INSTALL_DIR="$(pwd)/${INSTALL_DIR}"
-
   pushd gpdb_src
     CC=$(which gcc) CXX=$(which g++) ./configure --enable-mapreduce --with-gssapi --with-perl --with-libxml \
 	--disable-orca --with-python --prefix=${GREENPLUM_INSTALL_DIR}
