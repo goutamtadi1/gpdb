@@ -3,7 +3,7 @@ set -exo pipefail
 
 GREENPLUM_INSTALL_DIR=/usr/local/gpdb
 TRANSFER_DIR_ABSOLUTE_PATH="$(pwd)/${TRANSFER_DIR}"
-COMPILED_BITS_FILENAME=${COMPILED_BITS_FILENAME:="compiled_bits_gpdb.tar.gz"}
+COMPILED_BITS_FILENAME=${COMPILED_BITS_FILENAME:="compiled_bits_ubuntu16.tar.gz"}
 
 function build_gpdb() {
   pushd gpdb_src

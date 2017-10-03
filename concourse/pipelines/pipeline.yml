@@ -6,13 +6,14 @@ groups:
   - compile_gpdb_binary_swap_centos6
   - compile_gpdb_centos7
   - compile_gpdb_sles11
-  - compile_and_icw_gpdb_ubuntu16
+  - compile_gpdb_ubuntu16
   - compile_gpdb_windows_cl
   - compile_gpdb_aix7_remote
   - icw_planner_centos6
   - icw_gporca_centos6
   - icw_gporca_centos7
   - icw_gporca_sles11
+  - icw_planner_ubuntu16
   - icw_planner_ictcp_centos6
   - client_loader_remote_test_aix
   - mpp_resource_group_centos6
@@ -208,6 +209,15 @@ resources:
     region_name: {{aws-region}}
     secret_access_key: {{bucket-secret-access-key}}
     versioned_file: {{bin_gpdb_centos_versioned_file}}
+
+- name: compiled_bits_ubuntu16
+  type: s3
+  source:
+    access_key_id: {{bucket-access-key-id}}
+    bucket: {{bucket-name}}
+    region_name: {{aws-region}}
+    secret_access_key: {{bucket-secret-access-key}}
+    versioned_file: {{compiled_bits_ubuntu16_versioned_file}}
 
 - name: binary_swap_gpdb_centos6
   type: s3
@@ -627,7 +637,7 @@ jobs:
       params:
         file: gpdb_artifacts/greenplum-loaders-*-rhel7-x86_64.zip
 
-- name: compile_and_icw_gpdb_ubuntu16
+- name: compile_gpdb_ubuntu16
   plan:
   - aggregate:
     - get: reduced-frequency-trigger
@@ -640,12 +650,9 @@ jobs:
     file: gpdb_src/concourse/tasks/compile_gpdb_open_source_ubuntu.yml
     params:
       CONFIGURE_FLAGS: {{configure_flags}}
-  - task: ic_gpdb
-    file: gpdb_src/concourse/tasks/ic_gpdb_ubuntu.yml
-    image: ubuntu-gpdb-dev-16
+  - put: compiled_bits_ubuntu16
     params:
-      MAKE_TEST_COMMAND: PGOPTIONS='-c optimizer=off' installcheck-world
-      CONFIGURE_FLAGS: {{configure_flags}}
+      file: compiled_bits_ubuntu16/compiled_bits_ubuntu16.tar.gz
 
 - name: compile_gpdb_sles11
   plan:
@@ -871,6 +878,22 @@ jobs:
       MAKE_TEST_COMMAND: PGOPTIONS='-c optimizer=on' installcheck-world
       BLDWRAP_POSTGRES_CONF_ADDONS: "fsync=off"
       TEST_OS: sles
+      CONFIGURE_FLAGS: {{configure_flags}}
+
+- name: icw_planner_ubuntu16
+  plan:
+  - aggregate:
+    - get: gpdb_src
+      passed: [compile_gpdb_ubuntu16]
+    - get: compiled_bits_ubuntu16
+      passed: [compile_gpdb_ubuntu16]
+      trigger: true
+    - get: ubuntu-gpdb-dev-16
+  - task: ic_gpdb
+    file: gpdb_src/concourse/tasks/ic_gpdb_ubuntu.yml
+    image: ubuntu-gpdb-dev-16
+    params:
+      MAKE_TEST_COMMAND: PGOPTIONS='-c optimizer=off' installcheck-world
       CONFIGURE_FLAGS: {{configure_flags}}
 
 - name: icw_planner_ictcp_centos6
@@ -1934,13 +1957,14 @@ jobs:
     - compile_gpdb_open_source_centos6
     - compile_gpdb_centos7
     - compile_gpdb_sles11
-    - compile_and_icw_gpdb_ubuntu16
+    - compile_gpdb_ubuntu16
     - compile_gpdb_windows_cl
     - compile_gpdb_aix7_remote
     - icw_planner_centos6
     - icw_gporca_centos6
     - icw_gporca_centos7
     - icw_gporca_sles11
+    - icw_planner_ubuntu16
     - icw_planner_ictcp_centos6
     - client_loader_remote_test_aix
     - mpp_resource_group_centos6

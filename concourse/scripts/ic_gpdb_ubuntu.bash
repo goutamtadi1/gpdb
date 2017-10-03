@@ -7,7 +7,7 @@ GREENPLUM_INSTALL_DIR=/usr/local/gpdb
 
 function load_transfered_bits_into_install_dir() {
   mkdir -p $GREENPLUM_INSTALL_DIR
-  tar xzf $TRANSFER_DIR/compiled_bits_gpdb.tar.gz -C $GREENPLUM_INSTALL_DIR
+  tar xzf $TRANSFER_DIR/$COMPILED_BITS_FILENAME -C $GREENPLUM_INSTALL_DIR
 }
 
 function configure() {
