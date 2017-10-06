@@ -10,6 +10,7 @@ class GpBuild(GpdbBuildBase):
     def configure(self):
         return subprocess.call(["./configure",
                                 "--enable-mapreduce",
+                                "--enable-pxf",
                                 "--with-perl",
                                 "--with-libxml",
                                 "--with-python",
@@ -31,4 +32,3 @@ class GpBuild(GpdbBuildBase):
             "runuser gpadmin -c \"source /usr/local/gpdb/greenplum_path.sh \
             && source gpAux/gpdemo/gpdemo-env.sh && PGOPTIONS='-c optimizer={0}' \
             make -C src/test installcheck-good\"".format(self.mode)], cwd="gpdb_src", shell=True)
-    
