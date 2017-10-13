@@ -1,13 +1,13 @@
 import subprocess
 from GpdbBuildBase import GpdbBuildBase
 
+
 class GpBuild(GpdbBuildBase):
     def __init__(self, mode):
+        GpdbBuildBase.__init__(self)
         self.mode = 'on' if mode == 'orca' else 'off'
 
     def configure(self):
-        subprocess.call(["g++","--version"])
-        subprocess.call(["gcc","--version"])
         return subprocess.call(["./configure",
                                 "--enable-mapreduce",
                                 "--with-gssapi",
@@ -17,36 +17,32 @@ class GpBuild(GpdbBuildBase):
                                 "--disable-gpcloud",
                                 "--prefix=/usr/local/gpdb"], cwd="gpdb_src")
 
-    def icg(self):
-        status = self.export_Ld_Library_Path_to_Greenplum_Path()
-        if status:
-            return status
-        status = self.create_Demo_Cluster()
-        if status:
-            return status
-        return subprocess.call([
-            "runuser gpadmin -c \"source /usr/local/gpdb/greenplum_path.sh \
-            && source gpAux/gpdemo/gpdemo-env.sh && PGOPTIONS='-c optimizer={0}' \
-            make -C src/test installcheck-good\"".format(self.mode)], cwd="gpdb_src", shell=True)
-
-    def icw(self):
-        status = self.export_Ld_Library_Path_to_Greenplum_Path()
-        if status:
-            return status
-        status = self.create_Demo_Cluster()
-        if status:
-            return status
-        return subprocess.call([
-            "runuser gpadmin -c \"source /usr/local/gpdb/greenplum_path.sh \
-            && source gpAux/gpdemo/gpdemo-env.sh && PGOPTIONS='-c optimizer={0}' \
-            make installcheck-world\"".format(self.mode)], cwd="gpdb_src", shell=True)
-
-    def create_Demo_Cluster(self):
+    @staticmethod
+    def create_demo_cluster():
         return subprocess.call([
             "runuser gpadmin -c \"source /usr/local/gpdb/greenplum_path.sh \
             && make create-demo-cluster DEFAULT_QD_MAX_CONNECT=150\""], cwd="gpdb_src/gpAux/gpdemo", shell=True)
 
-    def export_Ld_Library_Path_to_Greenplum_Path(self):
+    @staticmethod
+    def export_ld_library_path_to_greenplum_path():
         return subprocess.call(
             "printf '\nLD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib\nexport \
             LD_LIBRARY_PATH' >> /usr/local/gpdb/greenplum_path.sh", shell=True)
+
+    def install_check(self, option='good'):
+        status = self.export_ld_library_path_to_greenplum_path()
+        if status:
+            return status
+        status = self.create_demo_cluster()
+        if status:
+            return status
+        if option == 'world':
+            return self.run_install_check_with_command('make installcheck-world')
+        else:
+            return self.run_install_check_with_command('make -C src/test installcheck-good')
+
+    def run_install_check_with_command(self, make_command):
+        return subprocess.call([
+            "runuser gpadmin -c \"source /usr/local/gpdb/greenplum_path.sh \
+            && source gpAux/gpdemo/gpdemo-env.sh && PGOPTIONS='-c optimizer={0}' \
+            {1} \"".format(self.mode, make_command)], cwd="gpdb_src", shell=True)
