@@ -30,9 +30,9 @@ class GpBuild(GpdbBuildBase):
             LD_LIBRARY_PATH' >> /usr/local/gpdb/greenplum_path.sh", shell=True)
 
     def install_check(self, option='good'):
-        status = self.export_ld_library_path_to_greenplum_path()
-        if status:
-            return status
+        # status = self.export_ld_library_path_to_greenplum_path()
+        # if status:
+        #     return status
         status = self.create_demo_cluster()
         if status:
             return status
