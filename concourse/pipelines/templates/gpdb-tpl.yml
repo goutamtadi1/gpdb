@@ -64,6 +64,7 @@ groups:
   - icw_gporca_oracle7
   - icw_gporca_sles11
   - icw_planner_ubuntu16
+  - icw_planner_open_source_ubuntu16
   - icw_gporca_conan_ubuntu16
   - icw_extensions_gpcloud
   - test_gpdb_debian_package
@@ -190,6 +191,7 @@ groups:
   - icw_gporca_oracle7
   - icw_gporca_sles11
   - icw_planner_ubuntu16
+  - icw_planner_open_source_ubuntu16
   - icw_gporca_conan_ubuntu16
   - icw_extensions_gpcloud
   - test_gpdb_debian_package
@@ -1451,6 +1453,9 @@ jobs:
     - get: deb_package_open_source_ubuntu16
       passed:
       - compile_gpdb_open_source_ubuntu16
+    - get: deb_package_ubuntu16
+      passed:
+      - compile_gpdb_ubuntu16
 
 {% if "ICW" in test_sections %}
 ## ======================================================================
@@ -1484,6 +1489,9 @@ jobs:
         passed:
         - gate_compile_end
       - get: deb_package_open_source_ubuntu16
+        passed:
+        - gate_compile_end
+      - get: deb_package_ubuntu16
         passed:
         - gate_compile_end
 
@@ -1640,20 +1648,42 @@ jobs:
       TEST_OS: sles
       CONFIGURE_FLAGS: {{configure_flags}}
 
+- name: icw_planner_open_source_ubuntu16
+  plan:
+  - aggregate:
+    - get: gpdb_src
+      passed: [gate_icw_start]
+    - get: deb_package_open_source_ubuntu16
+      passed: [gate_icw_start]
+      trigger: true
+    - get: ubuntu-gpdb-debian-dev-16
+  - task: ic_gpdb
+    input_mapping:
+      deb_package: deb_package_open_source_ubuntu16
+    file: gpdb_src/concourse/tasks/ic_gpdb_ubuntu.yml
+    image: ubuntu-gpdb-debian-dev-16
+    params:
+      MAKE_TEST_COMMAND: PGOPTIONS='-c optimizer=off' installcheck-world
+      DEBIAN_PACKAGE: deb_package/greenplum-db.deb
+      CONFIGURE_FLAGS: {{configure_flags}}
+
 - name: icw_planner_ubuntu16
   plan:
   - aggregate:
     - get: gpdb_src
       passed: [gate_icw_start]
-    - get: compiled_bits_ubuntu16
+    - get:  deb_package_ubuntu16
       passed: [gate_icw_start]
-      trigger: [[ test_trigger ]]
-    - get: ubuntu-gpdb-dev-16
+      trigger: true
+    - get: ubuntu-gpdb-debian-dev-16
   - task: ic_gpdb
+    input_mapping:
+      deb_package: deb_package_ubuntu16
     file: gpdb_src/concourse/tasks/ic_gpdb_ubuntu.yml
-    image: ubuntu-gpdb-dev-16
+    image: ubuntu-gpdb-debian-dev-16
     params:
       MAKE_TEST_COMMAND: PGOPTIONS='-c optimizer=off' installcheck-world
+      DEBIAN_PACKAGE: deb_package/greenplum*.deb
       CONFIGURE_FLAGS: {{configure_flags}}
 
 - name: icw_gporca_conan_ubuntu16
@@ -1801,6 +1831,7 @@ jobs:
       - icw_planner_oracle7
       - icw_gporca_sles11
       - icw_planner_ubuntu16
+      - icw_planner_open_source_ubuntu16
       - icw_gporca_conan_ubuntu16
       - icw_extensions_gpcloud
       - QP_memory-accounting
@@ -3629,6 +3660,7 @@ jobs:
       - icw_gporca_oracle7
       - icw_gporca_sles11
       - icw_planner_ubuntu16
+      - icw_planner_open_source_ubuntu16
       - icw_gporca_conan_ubuntu16
       - test_gpdb_debian_package
       - icw_extensions_gpcloud
