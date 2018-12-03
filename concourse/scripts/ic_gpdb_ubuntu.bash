@@ -13,6 +13,7 @@ function install_debian() {
 
 function setup_gpadmin_user() {
     ./gpdb_src/concourse/scripts/setup_gpadmin_user.bash
+    chown -R gpadmin:gpadmin ${GREENPLUM_INSTALL_DIR}
 }
 
 function configure() {
