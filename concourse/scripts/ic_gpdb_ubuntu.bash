@@ -18,7 +18,7 @@ function setup_gpadmin_user() {
 
 function configure() {
   pushd gpdb_src
-    ./configure --prefix=/opt/gpdb --with-gssapi --with-perl --with-python --with-libxml --disable-orca ${CONFIGURE_FLAGS}
+    ./configure --prefix=/opt/gpdb --with-libxml --disable-orca ${CONFIGURE_FLAGS}
   popd
 }
 
