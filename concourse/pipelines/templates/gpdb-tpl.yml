@@ -467,14 +467,6 @@ resources:
     repository: pivotaldata/ubuntu-gpdb-debian-dev
     tag: '16.04'
 
-- name: ubuntu-gpcloud-dev-16
-  type: docker-image
-  source:
-    repository: pivotaldata/ubuntu-gpcloud-dev
-    tag: '16.04'
-    username: {{docker_username}}
-    password: {{docker_password}}
-
 - name: centos-mingw
   type: docker-image
   source:
@@ -1055,7 +1047,6 @@ jobs:
     - get: centos-mingw
     - get: ubuntu-gpdb-dev-16
     - get: ubuntu-gpdb-debian-dev-16
-    - get: ubuntu-gpcloud-dev-16
 
 - name: compile_gpdb_centos6
   plan:
@@ -1195,11 +1186,11 @@ jobs:
     - get: gpaddon_src
       passed: [gate_compile_start]
     - get: docker-in-concourse
-    - get: ubuntu-gpcloud-dev-16
+    - get: ubuntu-gpdb-debian-dev-16
       passed: [gate_compile_start]
   - task: compile_gpdb
     file: gpdb_src/concourse/tasks/compile_gpdb_ubuntu16.yml
-    image: ubuntu-gpcloud-dev-16
+    image: ubuntu-gpdb-debian-dev-16
     privileged: true
   - aggregate:
     - put: bin_gpdb_ubuntu16
